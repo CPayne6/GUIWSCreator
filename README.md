@@ -1,2 +1,2 @@
 # GUIWSCreator
-this is the GUI interface for the worksheet creator
+This is the graphical interface for a math aid program.
