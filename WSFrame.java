@@ -11,23 +11,27 @@ public class WSFrame extends JFrame implements ActionListener{
 	private static final int Height = 480;
 	private static final int LINES = 10;
 	private static final int CHAR_PER_LINE = 40;
+	private JPanel panel;
+	private int unitNum;
+//	private String[] SubUnits;
 
-	private JTextPane f;
+	private JLabel f;
 
 	public WSFrame(){
 		super();
-		JPanel panel = new JPanel();
+		unitNum = 0;
+//		subUnits = new String[];
+		panel = new JPanel();
 		panel.setBackground(Color.LIGHT_GRAY);
 		panel.setSize(Width, Height);
 		this.add(panel);
-
-		f = new JTextPane();
-		f.setEditable(false);
+		
+		f = new JLabel();
 		f.setText("Main Menu");
+		f.setFont(f.getFont().deriveFont(30f));
 		f.setLocation(100, 100);
 		f.setBackground(Color.LIGHT_GRAY);
 		panel.add(f);
-
 
 		Container c = this.getContentPane();
 		c.setLayout(new BorderLayout());
@@ -82,7 +86,13 @@ public class WSFrame extends JFrame implements ActionListener{
 		if(!f.getText().equals(ac)){
 			f.setText(ac);
 		}
-
+		
+		
+	}
+	
+	
+	public void makeBelt(){
+		
 	}
 
 
