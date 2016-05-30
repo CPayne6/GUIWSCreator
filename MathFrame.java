@@ -1,3 +1,21 @@
+/***
+ * JOJO READ THIS:
+ * 
+ * I found a super easy way to add ActionListener to buttons or anything really.
+ * All you have to do is add a listener to the button (button.addActionListener) 
+ * through a method reference. Pretty much what you have to do is write a method
+ * that you want to execute when the button is pressed and then pass it to the
+ * addActionListener method (I wrote the exact syntax below). I added an example of this below where the generate
+ * button is initialized. I wrote the method generatePressed and passed it to the
+ * button. This way it is much easier to handle each button as we can define a 
+ * method for each. (I also changed the TreeListener to work this way)
+ * 
+ * Syntax for this method reference: buttonObject.addActionListener(this::methodYouWrite);
+ * Make sure the method you write has one ActionEvent parameter and returns void.
+ */
+
+
+
 import java.awt.EventQueue;
 
 import javax.swing.*;
@@ -9,17 +27,23 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.rendering.PDFRenderer;
 
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.Arrays;
 
 
-public class MathFrame extends JFrame implements TreeSelectionListener {
+public class MathFrame extends JFrame{
 
 	private JTree tree;
 	private DefaultMutableTreeNode selectedNode;
-	JTextPane textPane = new JTextPane();
-	JButton btnGenerate = new JButton("Generate");
+	private JTextPane textPane = new JTextPane();
+	private JScrollPane scrollPane_2 = new JScrollPane();
+	private JButton btnGenerate = new JButton("Generate");
+	
+	private PDDocument doc;
 
 	/**
 	 * Launch the application.
@@ -57,6 +81,10 @@ public class MathFrame extends JFrame implements TreeSelectionListener {
 		this.getContentPane().add(btnGenerate);
 		btnGenerate.setEnabled(false);
 		
+		//
+		btnGenerate.addActionListener(this::generatePressed); //adds a listener to the button that calls the generatePressed method
+		//
+		
 		JSpinner spinner = new JSpinner();
 		spinner.setBounds(87, 171, 45, 28);
 		spinner.setModel(new SpinnerNumberModel(1,1,99,1));
@@ -83,7 +111,7 @@ public class MathFrame extends JFrame implements TreeSelectionListener {
 		this.getContentPane().add(btnExport);
 
 
-		JScrollPane scrollPane_2 = new JScrollPane();
+		
 		scrollPane_2.setBounds(144, 28, 294, 206);
 		this.getContentPane().add(scrollPane_2);
 		textPane.setEditable(false);
@@ -111,10 +139,15 @@ public class MathFrame extends JFrame implements TreeSelectionListener {
 		tree=new JTree(top);
 		tree.getSelectionModel().setSelectionMode
 		(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(this);
+		tree.addTreeSelectionListener(this::selectBelt);
 	}
 
-	public void valueChanged(TreeSelectionEvent e) {
+	
+	/**
+	 * CALLED WHEN A NODE ON THE TREE IS SELECTED
+	 * @param e
+	 */
+	public void selectBelt(TreeSelectionEvent e) {
 		selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
 		if (selectedNode == null) return;
 		if (!selectedNode.isLeaf()&&btnGenerate.isEnabled()) {
@@ -127,11 +160,23 @@ public class MathFrame extends JFrame implements TreeSelectionListener {
 		}
 	}
 	
+	/**
+	 * CALLED WHEN THE "Generate" BUTTON IS PRESSED
+	 * @param e
+	 */
+	private void generatePressed(ActionEvent e) {
+		String unit="";
+		String belt="";
+		String[] questions={""};
+		String[] answers={""};
+		doc=createWorksheets(questions,answers,unit,belt);
+		scrollPane_2.setViewportView(pageToLabel(doc,1));
+	}
 	
 	
 	//PDF Handling
 	
-	private static void createWorksheets(String[] worksheets,String[] answers,String unit,String colour) {
+	private static PDDocument createWorksheets(String[] worksheets,String[] answers,String unit,String colour) {
 
 		String[] serials=new String[worksheets.length];
 		PDDocument doc = new PDDocument();
@@ -148,14 +193,14 @@ public class MathFrame extends JFrame implements TreeSelectionListener {
 				content.newLineAtOffset( 50, 730 );
 				content.showText("Name: _____________________________");
 
-				content.setFont( PDType1Font.HELVETICA_BOLD, 18 );
-				content.newLineAtOffset( 100, 0 );
+				content.setFont( PDType1Font.HELVETICA_BOLD, 24 );
+				content.newLineAtOffset( 350, 10 );
 				content.showText(unit);
 				content.newLineAtOffset( 0, -25 );
 				content.showText(colour+" Belt");
 				
 				content.setFont( PDType1Font.HELVETICA, 8 );
-				content.newLineAtOffset( -100,-10 );
+				content.newLineAtOffset( -350, 0 );
 				serials[i]=generateSerial();
 				content.showText("SERIAL NUMBER:   ");
 				content.setFont( PDType1Font.HELVETICA_BOLD, 8 );
@@ -227,6 +272,7 @@ public class MathFrame extends JFrame implements TreeSelectionListener {
 		catch (Exception io){
 			System.err.println(io);
 		}
+		return doc;
 	}
 	private static String generateSerial() {
 		String serial="";
@@ -251,4 +297,15 @@ public class MathFrame extends JFrame implements TreeSelectionListener {
 		lines[lines.length-1]=s;
 		return lines;
 	}
+	
+	private static JLabel pageToLabel(PDDocument pdf,int page) {
+		JLabel label=null;
+		try {
+			label = new JLabel(new ImageIcon((new PDFRenderer(pdf)).renderImage(page)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return label;
+	}
+	
 }
