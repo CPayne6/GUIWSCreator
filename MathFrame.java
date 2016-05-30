@@ -1,29 +1,12 @@
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JButton;
-import javax.swing.JTextArea;
-import javax.swing.JSpinner;
-import javax.swing.JTree;
-import javax.swing.JLabel;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeSelectionModel;
-
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 import java.awt.Font;
 
 
-public class MathFrame implements TreeSelectionListener {
+public class MathFrame extends JFrame implements TreeSelectionListener {
 
-	private JFrame frame;
 	private JTree tree;
 	private DefaultMutableTreeNode selectedNode;
 	JTextPane textPane = new JTextPane();
@@ -37,7 +20,7 @@ public class MathFrame implements TreeSelectionListener {
 			public void run() {
 				try {
 					MathFrame window = new MathFrame();
-					window.frame.setVisible(true);
+					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -56,51 +39,54 @@ public class MathFrame implements TreeSelectionListener {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
-		frame.getContentPane().setFont(new Font("Lucida Grande", Font.PLAIN, 13));
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+		this.getContentPane().setFont(new Font("Lucida Grande", Font.PLAIN, 13));
+		this.setBounds(100, 100, 450, 300);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.getContentPane().setLayout(null);
 		
 		btnGenerate.setBounds(26, 205, 79, 29);
-		frame.getContentPane().add(btnGenerate);
+		this.getContentPane().add(btnGenerate);
+		btnGenerate.setEnabled(false);
+		
 		JSpinner spinner = new JSpinner();
 		spinner.setBounds(87, 171, 45, 28);
-		frame.getContentPane().add(spinner);
+		spinner.setModel(new SpinnerNumberModel(1,1,99,1));
+		
+		this.getContentPane().add(spinner);
 		JLabel lblOfCopies = new JLabel("# of copies");
 		lblOfCopies.setBounds(16, 177, 86, 16);
-		frame.getContentPane().add(lblOfCopies);
+		this.getContentPane().add(lblOfCopies);
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(121, 27, -107, 140);
-		frame.getContentPane().add(scrollPane);
+		this.getContentPane().add(scrollPane);
 		JScrollPane scrollPane_1 = new JScrollPane();
 		scrollPane_1.setBounds(6, 27, 132, 140);
-		frame.getContentPane().add(scrollPane_1);
+		this.getContentPane().add(scrollPane_1);
 		initializeTree();
 		tree.setRootVisible(false);
 		scrollPane_1.setViewportView(tree);
 		JTextArea textArea = new JTextArea();
 		textArea.setBounds(209, 27, -34, 29);
-		frame.getContentPane().add(textArea);
+		this.getContentPane().add(textArea);
 		
 		JButton btnExport = new JButton("Export");
 		btnExport.setBounds(215, 243, 159, 29);
-		frame.getContentPane().add(btnExport);
+		this.getContentPane().add(btnExport);
 
 
 		JScrollPane scrollPane_2 = new JScrollPane();
 		scrollPane_2.setBounds(144, 28, 294, 206);
-		frame.getContentPane().add(scrollPane_2);
+		this.getContentPane().add(scrollPane_2);
 		textPane.setEditable(false);
 		scrollPane_2.setViewportView(textPane);
 
 		JLabel lblUnits = new JLabel("Units:");
 		lblUnits.setBounds(6, 6, 61, 16);
-		frame.getContentPane().add(lblUnits);
+		this.getContentPane().add(lblUnits);
 
 		JLabel lblPreview = new JLabel("Preview:");
 		lblPreview.setBounds(150, 6, 61, 16);
-		frame.getContentPane().add(lblPreview);
+		this.getContentPane().add(lblPreview);
 	}
 
 	private void initializeTree() {
@@ -126,7 +112,7 @@ public class MathFrame implements TreeSelectionListener {
 			btnGenerate.setEnabled(false);
 			System.out.println("disable");
 		}
-		else if (!btnGenerate.isEnabled()) {
+		else if ((selectedNode.isLeaf()&&!btnGenerate.isEnabled())){
 			btnGenerate.setEnabled(true);
 			System.out.println("enable");
 		}
