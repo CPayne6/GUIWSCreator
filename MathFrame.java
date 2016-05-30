@@ -37,6 +37,7 @@ import java.util.Arrays;
 
 public class MathFrame extends JFrame{
 
+	private JSpinner pageSelect = new JSpinner();
 	private JTree tree;
 	private DefaultMutableTreeNode selectedNode;
 	private JTextPane textPane = new JTextPane();
@@ -88,11 +89,17 @@ public class MathFrame extends JFrame{
 		JSpinner spinner = new JSpinner();
 		spinner.setBounds(87, 171, 45, 28);
 		spinner.setModel(new SpinnerNumberModel(1,1,99,1));
-		
 		this.getContentPane().add(spinner);
+	
 		JLabel lblOfCopies = new JLabel("# of copies");
 		lblOfCopies.setBounds(16, 177, 86, 16);
 		this.getContentPane().add(lblOfCopies);
+		
+		pageSelect.setEnabled(false);
+		pageSelect.setBounds(144, 240, 45, 30);
+		pageSelect.addChangeListener(this::pageSelection);
+		this.getContentPane().add(pageSelect);
+		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(121, 27, -107, 140);
 		this.getContentPane().add(scrollPane);
@@ -170,7 +177,19 @@ public class MathFrame extends JFrame{
 		String[] questions={""};
 		String[] answers={""};
 		doc=createWorksheets(questions,answers,unit,belt);
-		scrollPane_2.setViewportView(pageToLabel(doc,1));
+		scrollPane_2.setViewportView(pageToLabel(doc,0));
+		pageSelect.setEnabled(true);
+		pageSelect.setModel(new SpinnerNumberModel(1,1,doc.getNumberOfPages(),1));
+		pageSelect.setValue(1);
+		
+	}
+	
+	/**
+	 * CALLED WHEN THE PAGE SELCTION SPINNER CHANGES
+	 * @param e
+	 */
+	private void pageSelection(ChangeEvent e) {
+		scrollPane_2.setViewportView(pageToLabel(doc,((Integer)pageSelect.getValue())-1));
 	}
 	
 	
@@ -256,7 +275,7 @@ public class MathFrame extends JFrame{
 				content.showText(serials[i]);
 				content.setFont( PDType1Font.HELVETICA, 10 );
 				
-				String[] lines=getLines(answers[1]);
+				String[] lines=getLines(answers[i]);
 				for (int p=0;p<lines.length&&p<3;p++) {
 					content.newLineAtOffset( 0,-10 );
 					content.showText(lines[p]);
@@ -266,10 +285,11 @@ public class MathFrame extends JFrame{
 			content.endText();
 			content.close();
 
-			doc.save(unit+" Worksheets.pdf");
-			doc.close();
+			//doc.save(unit+" Worksheets.pdf");
+			//doc.close();
+			
 		}
-		catch (Exception io){
+		catch (IOException io){
 			System.err.println(io);
 		}
 		return doc;
@@ -301,7 +321,7 @@ public class MathFrame extends JFrame{
 	private static JLabel pageToLabel(PDDocument pdf,int page) {
 		JLabel label=null;
 		try {
-			label = new JLabel(new ImageIcon((new PDFRenderer(pdf)).renderImage(page)));
+			label = new JLabel(new ImageIcon(new PDFRenderer(pdf).renderImage(page,0.75f)));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
